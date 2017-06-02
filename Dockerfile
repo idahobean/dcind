@@ -1,19 +1,19 @@
 # Inspired by https://github.com/mumoshu/dcind
-FROM golang:alpine
-MAINTAINER Dmitry Matrosov <amidos@amidos.me>
+FROM golang:1
+MAINTAINER idahobean <idahobean14@gmail.com>
 
 ENV DOCKER_VERSION=17.05.0-ce \
     DOCKER_COMPOSE_VERSION=1.13.0
 
 # Install Docker and Docker Compose
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    apk --update --no-cache \
-    add curl device-mapper py-pip iptables bash nodejs-current-npm && \
-    rm -rf /var/cache/apk/* && \
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    iptables libdevmapper-dev python-pip nodejs && \
+    rm -rf /var/lib/apt/lists/* && \
     curl https://get.docker.com/builds/Linux/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
     mv docker/* /bin/ && chmod +x /bin/docker* && \
     pip install docker-compose==${DOCKER_COMPOSE_VERSION} && \
-    npm install npm@latest -g
+    npm install npm@latest npm-cli-login -g
 
 ENV CGO_ENABLED 0
 
@@ -31,5 +31,5 @@ ENTRYPOINT [ \
 	"switch", \
 		"shell=/bin/sh", "--", \
 	"codep", \
-		"/bin/docker daemon" \
+		"/bin/dockerd" \
 ]
